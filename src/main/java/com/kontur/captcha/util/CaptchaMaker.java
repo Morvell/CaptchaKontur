@@ -4,12 +4,12 @@ import sun.misc.BASE64Encoder;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class CaptchaMaker {
 
@@ -24,12 +24,14 @@ public class CaptchaMaker {
         return (int) (Math.random() * ++max);
     }
 
-    public String make() throws IOException {
+    public Captcha make() throws IOException {
         int width = 150;
         int height = 50;
 
         char data[] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q',
                        'r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9'};
+
+        int rotate[] = {5,10,15,20,25,30,-5,-10,-15,-20,-25,-30};
 
         List<String> captchaAnswer = new ArrayList<>();
 
@@ -48,36 +50,44 @@ public class CaptchaMaker {
 
         RenderingHints rh = new RenderingHints(
                 RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
+                RenderingHints.VALUE_ANTIALIAS_OFF);
 
         rh.put(RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY);
+                RenderingHints.VALUE_RENDER_SPEED);
 
         g2d.setRenderingHints(rh);
 
         GradientPaint gp = new GradientPaint(0, 0,
-                Color.red, 0, height/2, Color.black, true);
+                Color.lightGray, 0, height/2, Color.white, true);
 
         g2d.setPaint(gp);
         g2d.fillRect(0, 0, width, height);
 
-        g2d.setColor(new Color(255, 153, 0));
-
-        Random r = new Random();
-        int index = Math.abs(r.nextInt()) % 5;
+        g2d.setColor(new Color(0, 0, 0));
 
         int x = 0;
         int y = 0;
 
-        Character[] arr = new Character[captchaAnswer.size()];
 
         for (int i=0; i<captchaAnswer.size(); i++) {
-            x += 10 + (Math.abs(r.nextInt()) % 15);
-            y = 20 + Math.abs(r.nextInt()) % 20;
+            x += 10 + (Math.abs(rnd(100)) % 15);
+            y = 20 + Math.abs(rnd(100)) % 20;
+
+            AffineTransform affineTransform = new AffineTransform();
+            affineTransform.rotate(Math.toRadians(rotate[rnd(rotate.length-1)]), 0, 0);
+            Font rotatedFont = font.deriveFont(affineTransform);
+            g2d.setFont(rotatedFont);
             g2d.drawString(captchaAnswer.get(i), x, y);
-            g2d.rotate(1);
+
 
         }
+
+        g2d.drawLine(rnd(25),rnd(25),rnd(50,150),rnd(50));
+        g2d.drawLine(rnd(25),rnd(25),rnd(50,150),rnd(50));
+        g2d.drawLine(rnd(50,150),rnd(25),rnd(50,150),rnd(25,50));
+        g2d.drawLine(rnd(50),rnd(50),rnd(150),rnd(50));
+
+
         g2d.dispose();
 
 
@@ -95,7 +105,7 @@ public class CaptchaMaker {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return imageString;
+        return new Captcha(imageString, captchaAnswer.toString());
 
     }
 }
