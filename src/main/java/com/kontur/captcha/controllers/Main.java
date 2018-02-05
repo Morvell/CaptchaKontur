@@ -13,7 +13,7 @@ public class Main {
 
     @RequestMapping("/")
     public ModelAndView index() throws IOException {
-        
+
         String file = new CaptchaMaker().make();
         HashMap<String, Object> model = new HashMap<>();
         model.put("captcha", file);

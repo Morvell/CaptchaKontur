@@ -7,21 +7,35 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class CaptchaMaker {
+
+    public static int rnd(int min, int max)
+    {
+        max -= min;
+        return (int) (Math.random() * ++max) + min;
+    }
+
+    public static int rnd(int max)
+    {
+        return (int) (Math.random() * ++max);
+    }
 
     public String make() throws IOException {
         int width = 150;
         int height = 50;
 
-        char data[][] = {
-                { 'z', 'e', 't', 'c', 'o', 'd', 'e' },
-                { 'l', 'i', 'n', 'u', 'x' },
-                { 'f', 'r', 'e', 'e', 'b', 's', 'd' },
-                { 'u', 'b', 'u', 'n', 't', 'u' },
-                { 'j', 'e', 'e' }
-        };
+        char data[] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q',
+                       'r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9'};
+
+        List<String> captchaAnswer = new ArrayList<>();
+
+        for (int i=0; i< rnd(5,7); i++){
+            captchaAnswer.add(String.valueOf(data[rnd(data.length-1)]));
+        }
 
 
         BufferedImage bufferedImage = new BufferedImage(width, height,
@@ -52,18 +66,20 @@ public class CaptchaMaker {
         Random r = new Random();
         int index = Math.abs(r.nextInt()) % 5;
 
-        String captcha = String.copyValueOf(data[index]);
-
         int x = 0;
         int y = 0;
 
-        for (int i=0; i<data[index].length; i++) {
+        Character[] arr = new Character[captchaAnswer.size()];
+
+        for (int i=0; i<captchaAnswer.size(); i++) {
             x += 10 + (Math.abs(r.nextInt()) % 15);
             y = 20 + Math.abs(r.nextInt()) % 20;
-            g2d.drawChars(data[index], i, 1, x, y);
-        }
+            g2d.drawString(captchaAnswer.get(i), x, y);
+            g2d.rotate(1);
 
+        }
         g2d.dispose();
+
 
         String imageString = null;
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
